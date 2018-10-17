@@ -19,6 +19,7 @@
     "prop-types": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-jss": "latest"
+    "react-jss": "latest",
+    "spotify-web-api-js": "^1.1.1"
   }
 }
