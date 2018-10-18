@@ -7,7 +7,8 @@ const styles = theme => ({
     overflow: 'hidden'
   },
   gridContainer: {
-    marginTop: '20px'
+    marginTop: '20px',
+    'min-height': '500px'
   }
 });
 

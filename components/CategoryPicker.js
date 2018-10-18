@@ -2,6 +2,7 @@ import { withStyles } from '@material-ui/core/styles';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import GridListTileBar from '@material-ui/core/GridListTileBar';
+import Router from 'next/router';
 
 const categories = [
   {
@@ -263,9 +264,11 @@ const styles = theme => ({
     overflow: 'hidden'
   },
   gridItem: {
+    transform: 'scale(0.9)',
+    transition: 'transform 0.4s cubic-bezier(0,0,0.3,1)',
     '&:hover': {
       cursor: 'pointer',
-      transform: 'scale(1.01, 1.01)'
+      transform: 'scale(1)'
     }
   }
 });
@@ -277,7 +280,8 @@ const CategoryPicker = props => (
         <GridListTile
           className={props.classes.gridItem}
           key={category.id}
-          onClick={evt => console.log(evt)}>
+          onClick={_ => Router.push(`/play?category=${category.id}`)}
+        >
           <img src={category.icons[0].url} alt={category.name} />
           <GridListTileBar title={category.name} />
         </GridListTile>
