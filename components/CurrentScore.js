@@ -19,7 +19,7 @@ const CurrentScore = ({ title, score, timeLeft, playedTracks }) => (
       <ListItem>
         <ListItemText primary="Puntos" />
         <Typography variant="body1" color="textSecondary">
-          2
+          {score}
         </Typography>
       </ListItem>
     </List>

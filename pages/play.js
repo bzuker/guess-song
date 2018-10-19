@@ -30,7 +30,10 @@ class Play extends Component {
     tracks: [],
     playedTracks: [],
     track: null,
-    guess: ''
+    guess: '',
+    guessedArtist: false,
+    guessedTrack: false,
+    score: 0
   };
 
   componentDidMount = () => {
@@ -72,9 +75,22 @@ class Play extends Component {
   handleSubmit = evt => {
     evt.preventDefault();
     // Check if the guess matches song or artist.
-    const { guess, track } = this.state;
-    console.log('Match name', match(this.state.track.name, guess));
-    track.artists.forEach(x => console.log('Match artist', match(x.name, guess)));
+    const { guess, track, guessedArtist, guessedTrack } = this.state;
+
+    // If it matches the track name (and hasn't guessed yet) we award 2 points
+    if (!guessedTrack && match(this.state.track.name, guess)) {
+      this.setState(state => ({ ...state, score: state.score + 2, guess: '', guessedTrack: true }));
+    }
+
+    // If it matches one of the artists (and hasn't guessed yet), we award 1 point
+    if (!guessedArtist && track.artists.some(x => match(x.name, guess))) {
+      this.setState(state => ({
+        ...state,
+        score: state.score + 1,
+        guess: '',
+        guessedArtist: true
+      }));
+    }
   };
 
   nextTrack = _ => {
@@ -84,13 +100,16 @@ class Play extends Component {
         ...state,
         tracks: state.tracks.filter(x => x.id !== newTrack.id),
         track: newTrack,
-        playedTracks: [...state.playedTracks, state.track]
+        playedTracks: [...state.playedTracks, state.track],
+        guess: '',
+        guessedArtist: false,
+        guessedTrack: false
       };
     });
   };
 
   render() {
-    const { track, timeLeft, playedTracks } = this.state;
+    const { track, timeLeft, playedTracks, score } = this.state;
     const { classes } = this.props;
     console.log({ timeLeft });
     return (
@@ -100,6 +119,7 @@ class Play extends Component {
             title="Info del juego"
             timeLeft={timeLeft}
             playedTracks={playedTracks.length}
+            score={score}
           />
         </Grid>
         <Grid item xs={12} sm={7} md={5} lg={7}>
