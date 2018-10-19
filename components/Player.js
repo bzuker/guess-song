@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Spotify from 'spotify-web-api-js';
 import AudioSpectrum from 'react-audio-spectrum';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -21,25 +20,8 @@ const styles = theme => ({
 class Player extends Component {
   audioEl = React.createRef();
   state = {
-    isPlaying: false,
-    track: null
+    isPlaying: false
   };
-
-  componentDidMount() {
-    this.getTrack();
-  }
-
-  async getTrack() {
-    const { category } = this.props;
-    const response = await s.getCategoryPlaylists(category);
-    const playlists = response.playlists.items;
-    const randomPlaylist = playlists[Math.floor(Math.random() * playlists.length)];
-    const tracksResponse = await s.getPlaylistTracks(randomPlaylist.id);
-    const tracks = tracksResponse.items;
-    const playableTracks = tracks.filter(x => x.track.preview_url);
-    const track = playableTracks[Math.floor(Math.random() * playableTracks.length)].track;
-    this.setState({ track });
-  }
 
   play() {
     this.setState({ isPlaying: true });
@@ -54,7 +36,8 @@ class Player extends Component {
     this.audioEl.current.currentTime = 0;
   }
   render() {
-    const { track, isPlaying } = this.state;
+    const { track } = this.props;
+    const { isPlaying } = this.state;
     const { classes } = this.props;
     if (!track) {
       return <div>Loading</div>;
@@ -72,7 +55,7 @@ class Player extends Component {
         </audio>
         <AudioSpectrum
           id="audio-canvas"
-          height={200}
+          height={100}
           width={600}
           audioId={'track'}
           capColor={'red'}

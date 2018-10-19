@@ -1,7 +1,7 @@
 import Spotify from 'spotify-web-api-js';
 const s = new Spotify();
 s.setAccessToken(
-  'BQAFHl7R9IH-0BsJbXEcTfXm58gaG8HzW5dCQ61y5j5wyPsg_LP1OdrmS5QpfwbJOFZK_AQeJIdPda669bg'
+  'BQCcQVjVa0BDjpa9UOjB1CegvlkZ7AEou6aPnfE3Yk7A4l5xDuB4Ty7K5LWHZfY9rY54nLpWaqvO66Tdb18'
 );
 
 export default s;
