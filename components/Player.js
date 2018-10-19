@@ -27,7 +27,7 @@ class Player extends Component {
     this.setState({ isPlaying: true });
     this.audioEl.current.play();
 
-    setTimeout(_ => this.stop(), 3000);
+    setTimeout(_ => this.stop(), 15000);
   }
 
   stop() {

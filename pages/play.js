@@ -7,7 +7,9 @@ import Player from '../components/Player';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import s from '../src/spotifyApi';
+import CurrentScore from '../components/CurrentScore';
 import SongList from '../components/SongList';
+import UserList from '../components/UserList';
 import match from '../src/match';
 
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
@@ -16,11 +18,15 @@ const styles = theme => ({
   form: {
     marginTop: '20px',
     padding: '15px'
+  },
+  userList: {
+    marginBottom: '15px'
   }
 });
 
 class Play extends Component {
   state = {
+    timeLeft: 150,
     tracks: [],
     playedTracks: [],
     track: null,
@@ -29,6 +35,17 @@ class Play extends Component {
 
   componentDidMount = () => {
     this.getTrack();
+    this.startCountdown();
+  };
+
+  componentWillUnmount = () => {
+    clearInterval(this.intervalId);
+  };
+
+  startCountdown = _ => {
+    this.intervalId = setInterval(() => {
+      this.setState(state => ({ ...state, timeLeft: state.timeLeft - 1 }));
+    }, 100);
   };
 
   async getTrack() {
@@ -73,11 +90,19 @@ class Play extends Component {
   };
 
   render() {
-    const { track, tracks } = this.state;
+    const { track, timeLeft, playedTracks } = this.state;
     const { classes } = this.props;
+    console.log({ timeLeft });
     return (
       <React.Fragment>
-        <Grid item xs={12} sm={7} md={8} lg={9}>
+        <Grid item xs={12} sm={12} md={3} lg={2}>
+          <CurrentScore
+            title="Info del juego"
+            timeLeft={timeLeft}
+            playedTracks={playedTracks.length}
+          />
+        </Grid>
+        <Grid item xs={12} sm={7} md={5} lg={7}>
           <Player track={track} />
           <button onClick={this.nextTrack}>Next track</button>
           <Paper className={classes.form}>
@@ -88,7 +113,7 @@ class Play extends Component {
               {this.state.track
                 ? `${this.state.track.name} - ${this.state.track.artists
                     .map(x => x.name)
-                    .join(',')}`
+                    .join(', ')}`
                 : ''}
             </Typography>
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
@@ -104,6 +129,11 @@ class Play extends Component {
           </Paper>
         </Grid>
         <Grid item xs={12} sm={5} md={4} lg={3}>
+          <UserList
+            className={classes.userList}
+            title="Usuarios jugando"
+            users={[{ name: 'Brian' }, { name: 'Jorge' }]}
+          />
           <SongList title="Canciones escuchadas" songs={this.state.playedTracks} />
         </Grid>
       </React.Fragment>

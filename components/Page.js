@@ -16,7 +16,7 @@ const styles = theme => ({
       marginRight: 'auto'
     },
     marginTop: '20px',
-    minHeight: '500px'
+    minHeight: '100vh'
   }
 });
 
