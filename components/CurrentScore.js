@@ -1,14 +1,12 @@
 import Paper from '@material-ui/core/Paper';
-import LinearProgress from '@material-ui/core/LinearProgress';
 import List from '@material-ui/core/List';
 import ListSubheader from '@material-ui/core/ListSubheader';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 
-const CurrentScore = ({ title, score, timeLeft, playedTracks }) => (
+const CurrentScore = ({ title, score, playedTracks }) => (
   <Paper>
-    <LinearProgress value={(timeLeft * 100) / 150} variant="determinate" />
     <List subheader={<ListSubheader>{title}</ListSubheader>}>
       <ListItem>
         <ListItemText primary="Canción" />

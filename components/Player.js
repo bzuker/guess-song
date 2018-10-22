@@ -1,75 +1,84 @@
 import React, { Component } from 'react';
 import AudioSpectrum from 'react-audio-spectrum';
 import { withStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import IconButton from '@material-ui/core/IconButton';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import s from '../src/spotifyApi';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Avatar from '@material-ui/core/Avatar';
 
 const styles = theme => ({
-  card: {
+  paper: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    minHeight: '100px'
   },
   playBtn: {
     position: 'absolute'
+  },
+  avatar: {
+    backgroundColor: theme.palette.secondary.main
   }
 });
 
 class Player extends Component {
   audioEl = React.createRef();
-  state = {
-    isPlaying: false
-  };
+
+  componentDidUpdate() {
+    const { isPlaying } = this.props;
+    if (isPlaying) {
+      this.play();
+    } else {
+      this.stop();
+    }
+  }
 
   play() {
-    this.setState({ isPlaying: true });
+    if (!this.audioEl.current) return;
     this.audioEl.current.play();
-
-    setTimeout(_ => this.stop(), 15000);
   }
 
   stop() {
-    this.setState({ isPlaying: false });
+    if (!this.audioEl.current) return;
     this.audioEl.current.pause();
     this.audioEl.current.currentTime = 0;
   }
   render() {
-    const { track } = this.props;
-    const { isPlaying } = this.state;
-    const { classes } = this.props;
-    if (!track) {
-      return <div>Loading</div>;
-    }
+    const { track, classes, timeLeft, isPlaying, countdown } = this.props;
 
     return (
-      <Card className={classes.card} raised>
-        {!isPlaying ? (
-          <IconButton className={classes.playBtn} aria-label="Play">
-            <PlayArrowIcon onClick={_ => this.play()} />
-          </IconButton>
+      <React.Fragment>
+        {isPlaying ? (
+          <LinearProgress value={(timeLeft * 100) / 15000} variant="determinate" />
         ) : null}
-        <audio id="track" crossOrigin="anonymous" src={track.preview_url} ref={this.audioEl}>
-          Your browser does not support the <code>audio</code> element.
-        </audio>
-        <AudioSpectrum
-          id="audio-canvas"
-          height={100}
-          width={600}
-          audioId={'track'}
-          capColor={'red'}
-          capHeight={2}
-          meterWidth={2}
-          meterCount={512}
-          meterColor={[
-            { stop: 0, color: '#f00' },
-            { stop: 0.5, color: '#0CD7FD' },
-            { stop: 1, color: 'red' }
-          ]}
-          gap={4}
-        />
-      </Card>
+        <Paper className={classes.paper}>
+          {track && isPlaying ? (
+            <React.Fragment>
+              <audio id="track" crossOrigin="anonymous" src={track.preview_url} ref={this.audioEl}>
+                Your browser does not support the <code>audio</code> element.
+              </audio>
+              <AudioSpectrum
+                id="audio-canvas"
+                height={100}
+                width={600}
+                audioId={'track'}
+                capColor={'red'}
+                capHeight={2}
+                meterWidth={2}
+                meterCount={512}
+                meterColor={[
+                  { stop: 0, color: '#f00' },
+                  { stop: 0.5, color: '#0CD7FD' },
+                  { stop: 1, color: 'red' }
+                ]}
+                gap={4}
+              />
+            </React.Fragment>
+          ) : (
+            <Avatar className={classes.avatar}>{Math.round(countdown)}</Avatar>
+          )}
+        </Paper>
+      </React.Fragment>
     );
   }
 }
