@@ -44,7 +44,7 @@ const match = (pattern, guess) => {
 
   if (pattern.indexOf('the ') === 0) {
     // Ignore "the" at the beginning of artist name
-    var nothe = artist.replace(/^the /, '');
+    var nothe = pattern.replace(/^the /, '');
     if (levenshtein(nothe, guess)) {
       return true;
     }

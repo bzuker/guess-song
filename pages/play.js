@@ -30,6 +30,9 @@ const styles = theme => ({
   },
   error: {
     backgroundColor: theme.palette.error.dark
+  },
+  info: {
+    backgroundColor: theme.palette.secondary.dark
   }
 });
 
@@ -71,7 +74,7 @@ class Play extends Component {
         this.setState({ isPlaying: false });
 
         // If we played 10 tracks, the game is over.
-        if (this.state.playedTracks.length === 10) {
+        if (this.state.playedTracks.length === 9) {
           this.gameOver();
           return;
         }
@@ -126,11 +129,22 @@ class Play extends Component {
     evt.preventDefault();
 
     // Check if the guess matches song or artist.
-    const { guess, track, guessedArtist, guessedTrack } = this.state;
+    const { guess, track, guessedArtist, guessedTrack, isPlaying } = this.state;
+
+    if (!isPlaying) {
+      this.setState({
+        toast: { text: 'Esperá que empiece la canción!', status: 'info' },
+        guess: ''
+      });
+      return;
+    }
 
     if (guessedTrack && guessedArtist) {
       this.setState({
-        toast: { text: 'Ya adivinaste! Esperá la próxima canción', status: 'success' },
+        toast: {
+          text: 'Ya adivinaste! Esperá la próxima canción',
+          status: 'info'
+        },
         guess: ''
       });
       return;
@@ -191,7 +205,15 @@ class Play extends Component {
   };
 
   render() {
-    const { track, timeLeft, playedTracks, score, isPlaying, countdown, toast } = this.state;
+    const {
+      track,
+      timeLeft,
+      playedTracks,
+      score,
+      isPlaying,
+      countdown,
+      toast
+    } = this.state;
     const { classes } = this.props;
     return (
       <React.Fragment>
@@ -204,10 +226,19 @@ class Play extends Component {
           autoHideDuration={2000}
         />
         <Grid item xs={12} sm={12} md={3} lg={2}>
-          <CurrentScore title="Info del juego" playedTracks={playedTracks.length} score={score} />
+          <CurrentScore
+            title="Info del juego"
+            playedTracks={playedTracks.length}
+            score={score}
+          />
         </Grid>
         <Grid item xs={12} sm={7} md={5} lg={7}>
-          <Player track={track} isPlaying={isPlaying} timeLeft={timeLeft} countdown={countdown} />
+          <Player
+            track={track}
+            isPlaying={isPlaying}
+            timeLeft={timeLeft}
+            countdown={countdown}
+          />
           <Paper className={classes.form}>
             <Typography variant="h6" component="h5">
               Quién canta?
@@ -227,7 +258,7 @@ class Play extends Component {
                 value={this.state.guess}
                 onChange={this.handleChange('guess')}
                 fullWidth
-                disabled={!isPlaying}
+                autoFocus
               />
             </form>
           </Paper>
@@ -238,7 +269,10 @@ class Play extends Component {
             title="Usuarios jugando"
             users={[{ name: 'Brian' }, { name: 'Jorge' }]}
           />
-          <SongList title="Canciones escuchadas" songs={this.state.playedTracks} />
+          <SongList
+            title="Canciones escuchadas"
+            songs={this.state.playedTracks}
+          />
         </Grid>
       </React.Fragment>
     );
