@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import io from 'socket.io-client';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -11,7 +12,10 @@ import s from '../src/spotifyApi';
 import CurrentScore from '../components/CurrentScore';
 import SongList from '../components/SongList';
 import UserList from '../components/UserList';
+import AskUsername from '../components/AskUsername';
 import match from '../src/match';
+
+const socket = io('http://localhost:80/');
 
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
 
@@ -48,12 +52,14 @@ class Room extends Component {
     guessedArtist: false,
     guessedTrack: false,
     score: 0,
+    username: null,
     toast: {}
   };
 
   componentDidMount = _ => {
     this.getTracks();
     this.startCountdown();
+    // socket.emit('something', { text: 'Hi!' });
   };
 
   componentWillUnmount = _ => {
@@ -117,6 +123,10 @@ class Room extends Component {
       tracks: playableTracks.map(x => x.track)
     });
   }
+
+  handleLogin = username => {
+    this.setState({ username });
+  };
 
   handleChange = name => event => {
     this.setState({
@@ -207,10 +217,20 @@ class Room extends Component {
   };
 
   render() {
-    const { track, timeLeft, playedTracks, score, isPlaying, countdown, toast } = this.state;
+    const {
+      track,
+      timeLeft,
+      playedTracks,
+      score,
+      isPlaying,
+      countdown,
+      toast,
+      username
+    } = this.state;
     const { classes } = this.props;
     return (
       <React.Fragment>
+        <AskUsername open={!username} onSubmit={this.handleLogin} />
         <Snackbar
           open={Boolean(toast.status)}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
