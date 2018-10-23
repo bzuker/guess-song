@@ -58,6 +58,7 @@ class Room extends Component {
 
   componentWillUnmount = _ => {
     clearInterval(this.countdownId);
+    clearInterval(this.songInterval);
   };
 
   startPlayTrack = _ => {
