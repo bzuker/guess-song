@@ -40,6 +40,11 @@ const match = (pattern, guess) => {
     if (levenshtein(_pattern, guess)) {
       return true;
     }
+
+    _pattern = pattern.replace(/ & /, ' y ');
+    if (levenshtein(_pattern, guess)) {
+      return true;
+    }
   }
 
   if (pattern.indexOf('the ') === 0) {
@@ -60,6 +65,14 @@ const match = (pattern, guess) => {
     // Ignore commas
     _pattern = pattern.replace(/,/g, '');
     if (levenshtein(_pattern, guess)) {
+      return true;
+    }
+  }
+
+  if (/\-.+\??(?: \[.+\])?/.test(pattern)) {
+    // Ignore additional info e.g. Something - Feat. BZ
+    var normalized = pattern.replace(/\-.+\??(?: \[.+\])?/, '').trim();
+    if (levenshtein(normalized, guess)) {
       return true;
     }
   }
