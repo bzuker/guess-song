@@ -5,8 +5,8 @@ WORKDIR /usr/src
 # If package.json or yarn.lock don't change, no need to re-install later
 COPY package.json package-lock.json ./
 # We install our deps
-RUN npm i
+RUN yarn
 # We copy all source files
 COPY . .
 # We run the build and expose as /public
-RUN npm run build && npm run export -- -o /public
+RUN yarn build && yarn export -- -o /public
