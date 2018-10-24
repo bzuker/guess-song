@@ -15,7 +15,7 @@ import UserList from '../components/UserList';
 import AskUsername from '../components/AskUsername';
 import match from '../src/match';
 
-const socket = io('http://localhost:80/');
+const socket = io('http://localhost:80/rock');
 
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
 
@@ -59,7 +59,7 @@ class Room extends Component {
   componentDidMount = _ => {
     this.getTracks();
     this.startCountdown();
-    // socket.emit('something', { text: 'Hi!' });
+    socket.emit('add user', 'brianzuker ');
   };
 
   componentWillUnmount = _ => {
@@ -240,10 +240,19 @@ class Room extends Component {
           autoHideDuration={2000}
         />
         <Grid item xs={12} sm={12} md={3} lg={2}>
-          <CurrentScore title="Info del juego" playedTracks={playedTracks.length} score={score} />
+          <CurrentScore
+            title="Info del juego"
+            playedTracks={playedTracks.length}
+            score={score}
+          />
         </Grid>
         <Grid item xs={12} sm={7} md={5} lg={7}>
-          <Player track={track} isPlaying={isPlaying} timeLeft={timeLeft} countdown={countdown} />
+          <Player
+            track={track}
+            isPlaying={isPlaying}
+            timeLeft={timeLeft}
+            countdown={countdown}
+          />
           <Paper className={classes.form}>
             <Typography variant="h6" component="h5">
               Quién canta?

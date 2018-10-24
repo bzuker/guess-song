@@ -1,17 +1,14 @@
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const Room = require('./src/Room');
 
-server.listen(80, {}, _ => console.log('Listening on port 80'));
+server.listen(80, {}, _ => console.log('Listening on http://localhost:80'));
+
+var room = new Room(io, 'rock');
 
 app.get('/', (req, res) => {
-  console.log('Request to /');
   res.send('Alive!');
-});
-
-io.on('connection', socket => {
-  console.log('Someone has connected');
-  socket.on('something', data => console.log(data));
 });
 
 // Someone joins the room. We should tell them:
