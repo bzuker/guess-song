@@ -1,4 +1,3 @@
-const axios = require('axios');
 const Spotify = require('spotify-web-api-node');
 
 let s = new Spotify({
@@ -14,7 +13,7 @@ const getToken = async _ => {
     s.setAccessToken(data.body.access_token);
     console.log('Got them.');
   } catch (error) {
-    console.log(error);
+    console.log('Could not get credentials', error);
   }
 };
 
