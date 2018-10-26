@@ -20,8 +20,9 @@ class RoomContainer extends Component {
     this.socket.on('login', this.onLogin);
     this.socket.on('load track', this.onLoadTrack);
     this.socket.on('play track', this.onPlayTrack);
-    this.socket.on('user joined', users => this.setState({ users }));
-    this.socket.on('user left', users => this.setState({ users }));
+    this.socket.on('update score', this.updateUsers);
+    this.socket.on('user joined', this.updateUsers);
+    this.socket.on('user left', this.updateUsers);
   };
 
   componentWillUnmount = _ => {
@@ -32,6 +33,8 @@ class RoomContainer extends Component {
   addUser = username => {
     this.socket.emit('add user', username);
   };
+
+  updateUsers = users => this.setState({ users });
 
   onLogin = (user, roomInfo) => {
     console.log('login successful', { user });
@@ -53,6 +56,10 @@ class RoomContainer extends Component {
     console.log('play track', { ...roomInfo });
     this.setState({ ...roomInfo });
     this.songCountdown();
+  };
+
+  onCorrectGuess = (username, guessType) => {
+    this.socket.emit('correct guess', username, guessType);
   };
 
   songCountdown = _ => {
@@ -93,6 +100,7 @@ class RoomContainer extends Component {
       <Room
         category={this.props.router.query.category}
         addUser={this.addUser}
+        onCorrectGuess={this.onCorrectGuess}
         currentUser={currentUser}
         users={users}
         playedTracks={playedTracks}

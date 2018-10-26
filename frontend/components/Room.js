@@ -50,7 +50,7 @@ class Room extends Component {
     // Check if the guess matches song or artist.
     evt.preventDefault();
 
-    const { isPlaying, currentTrack } = this.props;
+    const { isPlaying, currentTrack, currentUser } = this.props;
     const { guess, guessedArtist, guessedTrack } = this.state;
 
     // Can't guess if there is no song
@@ -74,8 +74,9 @@ class Room extends Component {
       return;
     }
 
-    // If it matches the track name (and hasn't guessed yet) we award 2 points
+    // If it matches the track name (and hasn't guessed yet).
     if (!guessedTrack && match(currentTrack.name, guess)) {
+      this.props.onCorrectGuess(currentUser.name, 'name');
       this.setState(state => ({
         ...state,
         toast: {
@@ -89,8 +90,9 @@ class Room extends Component {
       return;
     }
 
-    // If it matches one of the artists (and hasn't guessed yet), we award 1 point
+    // If it matches one of the artists (and hasn't guessed yet).
     if (!guessedArtist && currentTrack.artists.some(x => match(x.name, guess))) {
+      this.props.onCorrectGuess(currentUser.name, 'artist');
       this.setState(state => ({
         ...state,
         toast: {

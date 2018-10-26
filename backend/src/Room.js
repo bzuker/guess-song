@@ -109,14 +109,15 @@ class Room {
   }
 
   onCorrectGuess(socket) {
-    socket.on('correct guess', (username, scoreToAdd) => {
+    socket.on('correct guess', (username, guessType) => {
+      console.log({ username, guessType });
       // Update user's score.
+      let user = this.users.find(x => x.name === username);
+      const scoreToAdd = guessType === 'name' ? 2 : 1;
+      user.score = user.score + scoreToAdd;
 
-      // Tell everyone the new scores => (all users or just the one updated?)
-      socket.emit('update score', {
-        username,
-        score: 10 + scoreToAdd
-      });
+      // Tell everyone the new scores.
+      this.room.emit('update score', this.users);
     });
   }
 
@@ -132,7 +133,7 @@ class Room {
   addEventListeners() {
     this.room.on('connection', socket => {
       console.log(
-        `connected to room ${this.name}. SocketID: ${socket.id}. Namespace: ${socket.nsp.name}`
+        `Connected to room ${this.name}. SocketID: ${socket.id}. Namespace: ${socket.nsp.name}`
       );
       this.onAddUser(socket);
       this.onCorrectGuess(socket);
