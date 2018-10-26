@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import AudioSpectrum from 'react-audio-spectrum';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import Typography from '@material-ui/core/Typography';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Avatar from '@material-ui/core/Avatar';
 
@@ -47,12 +46,20 @@ class Player extends Component {
     return (
       <React.Fragment>
         {isPlaying ? (
-          <LinearProgress value={(timeLeft * 100) / 15000} variant="determinate" />
+          <LinearProgress
+            value={(timeLeft * 100) / 15000}
+            variant="determinate"
+          />
         ) : null}
         <Paper className={classes.paper}>
           {track ? (
             <React.Fragment>
-              <audio id="track" crossOrigin="anonymous" src={track.preview_url} ref={this.audioEl}>
+              <audio
+                id="track"
+                crossOrigin="anonymous"
+                src={track.preview_url}
+                ref={this.audioEl}
+              >
                 Your browser does not support the <code>audio</code> element.
               </audio>
               <AudioSpectrum
@@ -73,7 +80,9 @@ class Player extends Component {
               />
             </React.Fragment>
           ) : null}
-          {!isPlaying ? <Avatar className={classes.avatar}>{Math.round(countdown)}</Avatar> : null}
+          {!isPlaying ? (
+            <Avatar className={classes.avatar}>{Math.round(countdown)}</Avatar>
+          ) : null}
         </Paper>
       </React.Fragment>
     );
