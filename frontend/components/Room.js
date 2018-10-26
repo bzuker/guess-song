@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import io from 'socket.io-client';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -8,14 +7,11 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Snackbar from '@material-ui/core/Snackbar';
 import green from '@material-ui/core/colors/green';
-import s from '../src/spotifyApi';
 import CurrentScore from '../components/CurrentScore';
 import SongList from '../components/SongList';
 import UserList from '../components/UserList';
 import AskUsername from '../components/AskUsername';
 import match from '../src/match';
-
-const socket = io('http://localhost:80/rock');
 
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
 
@@ -59,7 +55,6 @@ class Room extends Component {
   componentDidMount = _ => {
     this.getTracks();
     this.startCountdown();
-    socket.emit('add user', 'brianzuker ');
   };
 
   componentWillUnmount = _ => {
@@ -227,10 +222,10 @@ class Room extends Component {
       toast,
       username
     } = this.state;
-    const { classes } = this.props;
+    const { classes, addUser } = this.props;
     return (
       <React.Fragment>
-        <AskUsername open={!username} onSubmit={this.handleLogin} />
+        <AskUsername open={!username} onSubmit={addUser} />
         <Snackbar
           open={Boolean(toast.status)}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -240,19 +235,10 @@ class Room extends Component {
           autoHideDuration={2000}
         />
         <Grid item xs={12} sm={12} md={3} lg={2}>
-          <CurrentScore
-            title="Info del juego"
-            playedTracks={playedTracks.length}
-            score={score}
-          />
+          <CurrentScore title="Info del juego" playedTracks={playedTracks.length} score={score} />
         </Grid>
         <Grid item xs={12} sm={7} md={5} lg={7}>
-          <Player
-            track={track}
-            isPlaying={isPlaying}
-            timeLeft={timeLeft}
-            countdown={countdown}
-          />
+          <Player track={track} isPlaying={isPlaying} timeLeft={timeLeft} countdown={countdown} />
           <Paper className={classes.form}>
             <Typography variant="h6" component="h5">
               Quién canta?

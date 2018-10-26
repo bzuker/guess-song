@@ -1,6 +1,5 @@
-import { withRouter } from 'next/router';
-import Room from '../components/Room';
+import RoomContainer from '../components/RoomContainer';
 
-const Play = props => <Room category={props.router.query.category} />;
+const Play = props => <RoomContainer />;
 
-export default withRouter(Play);
+export default Play;
