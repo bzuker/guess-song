@@ -23,12 +23,7 @@ const styles = theme => ({
 const Page = ({ classes, children }) => (
   <div className={classes.page}>
     <Header />
-    <Grid
-      className={classes.gridContainer}
-      container
-      spacing={16}
-      justify="center"
-    >
+    <Grid className={classes.gridContainer} container spacing={16} justify="center">
       {children}
     </Grid>
   </div>

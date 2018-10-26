@@ -13,8 +13,6 @@ import UserList from '../components/UserList';
 import AskUsername from '../components/AskUsername';
 import match from '../src/match';
 
-const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
-
 const styles = theme => ({
   form: {
     marginTop: '20px',
@@ -39,7 +37,6 @@ class Room extends Component {
   static COUNTDOWN = 5;
   state = {
     isPlaying: false,
-    countdown: Room.COUNTDOWN,
     timeLeft: Room.PLAY_TIME,
     tracks: [],
     playedTracks: [],
@@ -52,18 +49,13 @@ class Room extends Component {
     toast: {}
   };
 
-  componentDidMount = _ => {
-    this.getTracks();
-    this.startCountdown();
-  };
+  componentDidMount = _ => {};
 
   componentWillUnmount = _ => {
-    clearInterval(this.countdownId);
     clearInterval(this.songInterval);
   };
 
   startPlayTrack = _ => {
-    this.setNextTrack();
     // Every track plays for Room.PLAY_TIME seconds
     this.setState({ isPlaying: true, timeLeft: Room.PLAY_TIME });
 
@@ -79,7 +71,6 @@ class Room extends Component {
           return;
         }
 
-        this.startCountdown();
         return;
       }
 
@@ -87,40 +78,8 @@ class Room extends Component {
     }, 250);
   };
 
-  startCountdown = _ => {
-    this.setState({ countdown: Room.COUNTDOWN });
-
-    this.countdownId = setInterval(_ => {
-      // When the countdown ends, we start playing
-      if (this.state.countdown < 1) {
-        clearInterval(this.countdownId);
-        this.startPlayTrack();
-        return;
-      }
-
-      this.setState(state => ({ ...state, countdown: state.countdown - 1 }));
-    }, 1000);
-  };
-
   gameOver = _ => {
     console.log('Game over, do something.');
-  };
-
-  async getTracks() {
-    const { category } = this.props;
-    const response = await s.getCategoryPlaylists(category);
-    const playlists = response.playlists.items;
-    const randomPlaylist = getRandomItem(playlists);
-    const tracksResponse = await s.getPlaylistTracks(randomPlaylist.id);
-    const tracks = tracksResponse.items.filter(x => x.track);
-    const playableTracks = tracks.filter(x => x.track.preview_url);
-    this.setState({
-      tracks: playableTracks.map(x => x.track)
-    });
-  }
-
-  handleLogin = username => {
-    this.setState({ username });
   };
 
   handleChange = name => event => {
@@ -133,7 +92,8 @@ class Room extends Component {
     // Check if the guess matches song or artist.
     evt.preventDefault();
 
-    const { guess, track, guessedArtist, guessedTrack, isPlaying } = this.state;
+    const { isPlaying, currentTrack } = this.props;
+    const { guess, guessedArtist, guessedTrack } = this.state;
 
     // Can't guess if there is no song
     if (!isPlaying) {
@@ -157,7 +117,7 @@ class Room extends Component {
     }
 
     // If it matches the track name (and hasn't guessed yet) we award 2 points
-    if (!guessedTrack && match(this.state.track.name, guess)) {
+    if (!guessedTrack && match(currentTrack.name, guess)) {
       this.setState(state => ({
         ...state,
         toast: {
@@ -173,7 +133,7 @@ class Room extends Component {
     }
 
     // If it matches one of the artists (and hasn't guessed yet), we award 1 point
-    if (!guessedArtist && track.artists.some(x => match(x.name, guess))) {
+    if (!guessedArtist && currentTrack.artists.some(x => match(x.name, guess))) {
       this.setState(state => ({
         ...state,
         toast: {
@@ -196,36 +156,21 @@ class Room extends Component {
     }));
   };
 
-  setNextTrack = _ => {
-    this.setState(state => {
-      const newTrack = getRandomItem(state.tracks);
-      return {
-        ...state,
-        tracks: state.tracks.filter(x => x.id !== newTrack.id),
-        playedTracks: state.track ? [...state.playedTracks, state.track] : [],
-        track: newTrack,
-        guess: '',
-        guessedArtist: false,
-        guessedTrack: false
-      };
-    });
-  };
-
   render() {
+    const { score, toast } = this.state;
     const {
-      track,
-      timeLeft,
-      playedTracks,
-      score,
+      classes,
+      addUser,
       isPlaying,
+      currentTrack,
+      playedTracks,
+      timeLeft,
       countdown,
-      toast,
-      username
-    } = this.state;
-    const { classes, addUser } = this.props;
+      currentUser
+    } = this.props;
     return (
       <React.Fragment>
-        <AskUsername open={!username} onSubmit={addUser} />
+        <AskUsername open={!currentUser} onSubmit={addUser} />
         <Snackbar
           open={Boolean(toast.status)}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -238,7 +183,12 @@ class Room extends Component {
           <CurrentScore title="Info del juego" playedTracks={playedTracks.length} score={score} />
         </Grid>
         <Grid item xs={12} sm={7} md={5} lg={7}>
-          <Player track={track} isPlaying={isPlaying} timeLeft={timeLeft} countdown={countdown} />
+          <Player
+            track={currentTrack}
+            isPlaying={isPlaying}
+            timeLeft={timeLeft}
+            countdown={countdown}
+          />
           <Paper className={classes.form}>
             <Typography variant="h6" component="h5">
               Quién canta?
