@@ -6,11 +6,9 @@ import Room from './Room';
 class RoomContainer extends Component {
   state = {
     currentUser: null,
-    roomInfo: {
-      users: [],
-      playedTracks: [],
-      currentTrack: null
-    },
+    users: [],
+    playedTracks: [],
+    currentTrack: null,
     isPlaying: false,
     timeLeft: 15000,
     countdown: 5
@@ -22,6 +20,8 @@ class RoomContainer extends Component {
     this.socket.on('login', this.onLogin);
     this.socket.on('load track', this.onLoadTrack);
     this.socket.on('play track', this.onPlayTrack);
+    this.socket.on('user joined', users => this.setState({ users }));
+    this.socket.on('user left', users => this.setState({ users }));
   };
 
   componentWillUnmount = _ => {
@@ -35,19 +35,28 @@ class RoomContainer extends Component {
 
   onLogin = (user, roomInfo) => {
     console.log('login successful', { user });
-    this.setState({ currentUser: user, roomInfo });
+    this.setState({ currentUser: user, ...roomInfo });
+
+    if (roomInfo.isPlaying) {
+      this.songCountdown();
+    }
   };
 
   onLoadTrack = roomInfo => {
     // We start the countdown
-    console.log('load track', { roomInfo });
-    this.setState({ roomInfo, isPlaying: false, countdown: 5 });
+    console.log('load track', { ...roomInfo });
+    this.setState({ ...roomInfo, countdown: 5 });
     this.startCountdown();
   };
 
-  onPlayTrack = _ => {
-    console.log('play track');
-    this.setState({ isPlaying: true, timeLeft: 15000 });
+  onPlayTrack = roomInfo => {
+    console.log('play track', { ...roomInfo });
+    this.setState({ ...roomInfo });
+    this.songCountdown();
+  };
+
+  songCountdown = _ => {
+    clearInterval(this.songInterval);
     this.songInterval = setInterval(_ => {
       // If the song ended, stop the interval.
       if (this.state.timeLeft < 0) {
@@ -71,15 +80,23 @@ class RoomContainer extends Component {
   };
 
   render() {
-    const { currentUser, roomInfo, isPlaying, timeLeft, countdown } = this.state;
+    const {
+      currentUser,
+      users,
+      playedTracks,
+      currentTrack,
+      isPlaying,
+      timeLeft,
+      countdown
+    } = this.state;
     return (
       <Room
         category={this.props.router.query.category}
         addUser={this.addUser}
         currentUser={currentUser}
-        users={roomInfo.users}
-        playedTracks={roomInfo.playedTracks}
-        currentTrack={roomInfo.currentTrack}
+        users={users}
+        playedTracks={playedTracks}
+        currentTrack={currentTrack}
         isPlaying={isPlaying}
         timeLeft={timeLeft}
         countdown={countdown}

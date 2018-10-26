@@ -1,5 +1,6 @@
 const s = require('../lib/spotify');
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
+const SONG_TIME = 15000;
 
 class Room {
   constructor(io, name) {
@@ -8,6 +9,8 @@ class Room {
     this.tracks = [];
     this.playedTracks = [];
     this.currentTrack = null;
+    this.isPlaying = false;
+    this.timeLeft = SONG_TIME;
     this.users = [];
 
     this.init();
@@ -16,7 +19,7 @@ class Room {
   async init() {
     // If the access token is not set, wait and retry.
     if (!s.getAccessToken()) {
-      setTimeout(_ => this.init(), 3000);
+      setTimeout(_ => this.init(), 1000);
       return;
     }
 
@@ -33,8 +36,9 @@ class Room {
   loadTrack() {
     // TODO: check if the game should be over.
 
-    this.setNextTrack();
     console.log('Loading track...');
+    this.setNextTrack();
+    this.isPlaying = false;
     this.room.emit('load track', this.getRoomInfo());
 
     // We wait 5s and start playing the track
@@ -43,10 +47,23 @@ class Room {
 
   playTrack() {
     console.log('Play track');
-    this.room.emit('play track');
+    this.isPlaying = true;
+    this.timeLeft = SONG_TIME;
+    this.startTimer();
+    this.room.emit('play track', this.getRoomInfo());
 
     // We play the song for 15s and load the next one
-    setTimeout(_ => this.loadTrack(), 15500);
+    setTimeout(_ => this.loadTrack(), SONG_TIME + 500);
+  }
+
+  startTimer(delay = 50) {
+    let interval = setInterval(_ => {
+      this.timeLeft = this.timeLeft - delay;
+
+      if (this.timeLeft < delay) {
+        clearInterval(interval);
+      }
+    }, delay);
   }
 
   setNextTrack() {
@@ -70,7 +87,9 @@ class Room {
     return {
       playedTracks: this.playedTracks,
       currentTrack: this.currentTrack,
-      users: this.users
+      users: this.users,
+      isPlaying: this.isPlaying,
+      timeLeft: this.timeLeft
     };
   }
 
@@ -78,15 +97,14 @@ class Room {
     socket.on('add user', username => {
       console.log('add user called', username);
       socket.username = username;
+      const newUser = { name: username, score: 0 };
+      this.users = [...this.users, newUser];
 
       // Give the user the room info.
-      socket.emit('login', username, this.getRoomInfo());
+      socket.emit('login', newUser, this.getRoomInfo());
 
       // Tell everyone else someone joined the room
-      socket.broadcast.emit('user joined', {
-        username,
-        score: 0
-      });
+      socket.broadcast.emit('user joined', this.users);
     });
   }
 
@@ -106,7 +124,8 @@ class Room {
     // TODO: check what to do.
     socket.on('disconnect', _ => {
       console.log('disconnect called');
-      socket.emit('remove user', socket.username);
+      this.users = this.users.filter(x => x.name !== socket.username);
+      socket.broadcast.emit('user left', this.users);
     });
   }
 

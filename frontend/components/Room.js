@@ -19,7 +19,7 @@ const styles = theme => ({
     padding: '15px'
   },
   userList: {
-    marginBottom: '15px'
+    marginTop: '15px'
   },
   success: {
     backgroundColor: green[600]
@@ -33,53 +33,11 @@ const styles = theme => ({
 });
 
 class Room extends Component {
-  static PLAY_TIME = 15000;
-  static COUNTDOWN = 5;
   state = {
-    isPlaying: false,
-    timeLeft: Room.PLAY_TIME,
-    tracks: [],
-    playedTracks: [],
-    track: null,
     guess: '',
     guessedArtist: false,
     guessedTrack: false,
-    score: 0,
-    username: null,
     toast: {}
-  };
-
-  componentDidMount = _ => {};
-
-  componentWillUnmount = _ => {
-    clearInterval(this.songInterval);
-  };
-
-  startPlayTrack = _ => {
-    // Every track plays for Room.PLAY_TIME seconds
-    this.setState({ isPlaying: true, timeLeft: Room.PLAY_TIME });
-
-    this.songInterval = setInterval(_ => {
-      // When the time ends, we start the countdown.
-      if (this.state.timeLeft < 0) {
-        clearInterval(this.songInterval);
-        this.setState({ isPlaying: false });
-
-        // If we played 10 tracks, the game is over.
-        if (this.state.playedTracks.length === 9) {
-          this.gameOver();
-          return;
-        }
-
-        return;
-      }
-
-      this.setState(state => ({ ...state, timeLeft: state.timeLeft - 250 }));
-    }, 250);
-  };
-
-  gameOver = _ => {
-    console.log('Game over, do something.');
   };
 
   handleChange = name => event => {
@@ -124,7 +82,6 @@ class Room extends Component {
           text: guessedArtist ? '+2. Excelente!' : '+2. Bien! Y quién canta?',
           status: 'success'
         },
-        score: state.score + 2,
         guess: '',
         guessedTrack: true
       }));
@@ -140,7 +97,6 @@ class Room extends Component {
           text: guessedTrack ? '+1. Excelente!' : '+1. Bien! Y qué canción es?',
           status: 'success'
         },
-        score: state.score + 1,
         guess: '',
         guessedArtist: true
       }));
@@ -157,7 +113,7 @@ class Room extends Component {
   };
 
   render() {
-    const { score, toast } = this.state;
+    const { toast } = this.state;
     const {
       classes,
       addUser,
@@ -166,7 +122,8 @@ class Room extends Component {
       playedTracks,
       timeLeft,
       countdown,
-      currentUser
+      currentUser,
+      users
     } = this.props;
     return (
       <React.Fragment>
@@ -180,7 +137,12 @@ class Room extends Component {
           autoHideDuration={2000}
         />
         <Grid item xs={12} sm={12} md={3} lg={2}>
-          <CurrentScore title="Info del juego" playedTracks={playedTracks.length} score={score} />
+          <CurrentScore
+            title="Info del juego"
+            playedTracks={playedTracks.length}
+            score={currentUser ? currentUser.score : 0}
+          />
+          <UserList className={classes.userList} title="Usuarios jugando" users={users} />
         </Grid>
         <Grid item xs={12} sm={7} md={5} lg={7}>
           <Player
@@ -194,10 +156,8 @@ class Room extends Component {
               Quién canta?
             </Typography>
             <Typography>
-              {this.state.track
-                ? `${this.state.track.name} - ${this.state.track.artists
-                    .map(x => x.name)
-                    .join(', ')}`
+              {currentTrack
+                ? `${currentTrack.name} - ${currentTrack.artists.map(x => x.name).join(', ')}`
                 : ''}
             </Typography>
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
@@ -214,11 +174,6 @@ class Room extends Component {
           </Paper>
         </Grid>
         <Grid item xs={12} sm={5} md={4} lg={3}>
-          <UserList
-            className={classes.userList}
-            title="Usuarios jugando"
-            users={[{ name: 'Brian' }, { name: 'Jorge' }]}
-          />
           <SongList title="Canciones escuchadas" songs={playedTracks} />
         </Grid>
       </React.Fragment>
