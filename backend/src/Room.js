@@ -1,5 +1,16 @@
 const s = require('../lib/spotify');
+const playlists = require('../config');
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
+const alreadyPlayedArtist = (songs, song) => {
+  try {
+    const playedArtists = songs.map(x => x.artists[0].id);
+    const artist = song.artists[0].id;
+    return playedArtists.includes(artist);
+  } catch (error) {
+    console.log(error, { songs, song });
+    return false;
+  }
+};
 const SONG_TIME = 15000;
 
 class Room {
@@ -27,7 +38,12 @@ class Room {
     this.addEventListeners();
 
     // Get the tracks for the room
-    await this.getTracks();
+    this.tracks = await this.getTracks();
+    console.log(this.tracks);
+    if (this.tracks.length <= 15) {
+      const moreTracks = await this.getTracks();
+      this.tracks = [...this.tracks, moreTracks];
+    }
 
     // Start the game
     this.loadTrack();
@@ -46,7 +62,7 @@ class Room {
   }
 
   playTrack() {
-    console.log('Play track');
+    console.log(`Play track ${this.currentTrack.name}`);
     this.isPlaying = true;
     this.timeLeft = SONG_TIME;
     this.startTimer();
@@ -68,19 +84,40 @@ class Room {
 
   setNextTrack() {
     const newTrack = getRandomItem(this.tracks);
+
+    if (!newTrack) {
+      console.log({ tracks: this.tracks });
+    }
+
+    if (alreadyPlayedArtist(this.playedTracks, newTrack)) {
+      this.setNextTrack();
+      return;
+    }
+
     this.tracks = this.tracks.filter(x => x.id !== newTrack.id);
-    this.playedTracks = this.currentTrack ? [...this.playedTracks, this.currentTrack] : [];
+    this.playedTracks = this.currentTrack
+      ? [...this.playedTracks, this.currentTrack]
+      : [];
     this.currentTrack = newTrack;
   }
 
   async getTracks() {
-    const { body } = await s.searchPlaylists(`${this.name}`, { limit: 10 });
-    const playlists = body.playlists.items;
-    const randomPlaylist = getRandomItem(playlists);
-    const tracksResponse = await s.getPlaylistTracks(randomPlaylist.id);
+    const randomPlaylistId = getRandomItem(playlists[this.name]);
+    const offset = Math.floor(Math.random() * 1000);
+    const tracksResponse = await s.getPlaylistTracks(randomPlaylistId, {
+      offset
+    });
     const tracks = tracksResponse.body.items.filter(x => x.track);
-    const playableTracks = tracks.filter(x => x.track.preview_url).map(x => x.track);
-    this.tracks = playableTracks;
+    // We didn't get any tracks, try again.
+    if (tracks.length === 0) {
+      return await this.getTracks();
+    }
+
+    const playableTracks = tracks
+      .filter(x => x.track.preview_url)
+      .map(x => x.track);
+
+    return playableTracks;
   }
 
   getRoomInfo() {
@@ -133,7 +170,9 @@ class Room {
   addEventListeners() {
     this.room.on('connection', socket => {
       console.log(
-        `Connected to room ${this.name}. SocketID: ${socket.id}. Namespace: ${socket.nsp.name}`
+        `Connected to room ${this.name}. SocketID: ${socket.id}. Namespace: ${
+          socket.nsp.name
+        }`
       );
       this.onAddUser(socket);
       this.onCorrectGuess(socket);
