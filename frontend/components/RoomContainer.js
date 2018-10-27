@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'next/router';
 import io from 'socket.io-client';
 import Room from './Room';
+import config from '../config';
 
 class RoomContainer extends Component {
   state = {
@@ -18,7 +19,7 @@ class RoomContainer extends Component {
   componentDidMount = () => {
     window.scrollTo(0, 0);
     const { category } = this.props.router.query;
-    this.socket = io(`http://localhost:80/${category}`);
+    this.socket = io(`${config.URL}/${category}`);
     this.socket.on('login', this.onLogin);
     this.socket.on('load track', this.onLoadTrack);
     this.socket.on('play track', this.onPlayTrack);

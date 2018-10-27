@@ -24,7 +24,6 @@
     "react-audio-spectrum": "0.0.9",
     "react-dom": "latest",
     "react-jss": "latest",
-    "socket.io-client": "^2.1.1",
-    "spotify-web-api-js": "^1.1.1"
+    "socket.io-client": "^2.1.1"
   }
 }

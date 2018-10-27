@@ -171,12 +171,7 @@ class Room extends Component {
           />
           <Paper className={classes.form}>
             <Typography variant="h6" component="h5">
-              Quién canta?
-            </Typography>
-            <Typography>
-              {currentTrack
-                ? `${currentTrack.name} - ${currentTrack.artists.map(x => x.name).join(', ')}`
-                : ''}
+              Adiviná la canción o quién canta!
             </Typography>
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
               <TextField

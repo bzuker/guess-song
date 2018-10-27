@@ -4,6 +4,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Avatar from '@material-ui/core/Avatar';
+import IconButton from '@material-ui/core/IconButton';
+import PlayIcon from '@material-ui/icons/PlayArrow';
 
 const styles = theme => ({
   paper: {
@@ -15,14 +17,33 @@ const styles = theme => ({
   avatar: {
     position: 'absolute',
     backgroundColor: theme.palette.secondary.main
+  },
+  playBtn: {
+    position: 'absolute'
   }
 });
 
 class Player extends Component {
-  audioEl = React.createRef();
+  state = {
+    isMobile: false,
+    hasPlayed: false
+  };
+  // audioEl = React.createRef();
 
-  componentDidUpdate() {
-    const { isPlaying } = this.props;
+  componentDidMount = () => {
+    this.audioEl = new Audio();
+    if (window.innerWidth < 800) {
+      this.setState({ isMobile: true });
+    }
+  };
+
+  componentDidUpdate(prevProps) {
+    const { isPlaying, track } = this.props;
+
+    if (!prevProps.track || prevProps.track.id !== track.id) {
+      this.audioEl.src = track && track.preview_url;
+    }
+
     if (isPlaying) {
       this.play();
     } else {
@@ -30,15 +51,22 @@ class Player extends Component {
     }
   }
 
+  mobilePlay() {
+    this.setState({ hasPlayed: true });
+    this.audioEl.play();
+  }
+
   play() {
-    if (!this.audioEl.current) return;
-    this.audioEl.current.play();
+    if (this.state.isMobile && !this.state.hasPlayed) return;
+    this.audioEl.play();
+    // if (!this.audioEl.current || (this.state.isMobile && !this.state.hasPlayed)) return;
+    // this.audioEl.current.play();
   }
 
   stop() {
-    if (!this.audioEl.current) return;
-    this.audioEl.current.pause();
-    this.audioEl.current.currentTime = 0;
+    // if (!this.audioEl.current) return;
+    this.audioEl.pause();
+    this.audioEl.currentTime = 0;
   }
   render() {
     const { track, classes, timeLeft, isPlaying, countdown } = this.props;
@@ -46,23 +74,28 @@ class Player extends Component {
     return (
       <React.Fragment>
         {isPlaying ? (
-          <LinearProgress
-            value={(timeLeft * 100) / 15000}
-            variant="determinate"
-          />
+          <LinearProgress value={(timeLeft * 100) / 15000} variant="determinate" />
         ) : null}
         <Paper className={classes.paper}>
           {track ? (
             <React.Fragment>
-              <audio
+              {this.state.isMobile ? (
+                <IconButton
+                  className={classes.playBtn}
+                  aria-label="Play"
+                  onClick={_ => this.mobilePlay()}>
+                  <PlayIcon />
+                </IconButton>
+              ) : null}
+              {/* <audio
                 id="track"
                 crossOrigin="anonymous"
                 src={track.preview_url}
-                ref={this.audioEl}
+                //ref={this.audioEl}
               >
                 Your browser does not support the <code>audio</code> element.
-              </audio>
-              <AudioSpectrum
+              </audio> */}
+              {/* <AudioSpectrum
                 id="audio-canvas"
                 height={100}
                 width={window.innerWidth > 1300 ? 500 : 300}
@@ -77,12 +110,10 @@ class Player extends Component {
                   { stop: 1, color: 'red' }
                 ]}
                 gap={4}
-              />
+              /> */}
             </React.Fragment>
           ) : null}
-          {!isPlaying ? (
-            <Avatar className={classes.avatar}>{Math.round(countdown)}</Avatar>
-          ) : null}
+          {!isPlaying ? <Avatar className={classes.avatar}>{Math.round(countdown)}</Avatar> : null}
         </Paper>
       </React.Fragment>
     );
