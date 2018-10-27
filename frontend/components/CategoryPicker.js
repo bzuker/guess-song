@@ -21,38 +21,37 @@ const categories = [
     icons: [
       {
         height: 274,
-        url:
-          'https://pl.scdn.co/images/pl/default/2c11e8fe28d68c2e43948bfe94673b33d2d4a070',
+        url: 'https://pl.scdn.co/images/pl/default/2c11e8fe28d68c2e43948bfe94673b33d2d4a070',
         width: 274
       }
     ],
     id: 'rock_argentino',
     name: 'Rock Argentino'
   },
-  {
-    icons: [
-      {
-        height: 274,
-        url:
-          'https://pl.scdn.co/images/pl/default/dadacb6a3ffa8390900f797c3d4d411cc30cd917',
-        width: 274
-      }
-    ],
-    id: 'top_argentino',
-    name: 'Top Actual Argentina'
-  },
-  {
-    icons: [
-      {
-        height: 274,
-        url:
-          'https://pl.scdn.co/images/pl/default/6eac0993234d1398288104aaf0b5b8005fb2f54a',
-        width: 274
-      }
-    ],
-    id: 'top_global',
-    name: 'Top Actual Global'
-  },
+  // {
+  //   icons: [
+  //     {
+  //       height: 274,
+  //       url:
+  //         'https://pl.scdn.co/images/pl/default/dadacb6a3ffa8390900f797c3d4d411cc30cd917',
+  //       width: 274
+  //     }
+  //   ],
+  //   id: 'top_argentino',
+  //   name: 'Top Actual Argentina'
+  // },
+  // {
+  //   icons: [
+  //     {
+  //       height: 274,
+  //       url:
+  //         'https://pl.scdn.co/images/pl/default/6eac0993234d1398288104aaf0b5b8005fb2f54a',
+  //       width: 274
+  //     }
+  //   ],
+  //   id: 'top_global',
+  //   name: 'Top Actual Global'
+  // },
   {
     icons: [
       {
@@ -64,19 +63,19 @@ const categories = [
     ],
     id: 'pop',
     name: 'Pop'
-  },
-  {
-    icons: [
-      {
-        height: 274,
-        url:
-          'https://t.scdn.co/media/derived/r-b-274x274_fd56efa72f4f63764b011b68121581d8_0_0_274_274.jpg',
-        width: 274
-      }
-    ],
-    id: 'mix',
-    name: 'Mix'
   }
+  // {
+  //   icons: [
+  //     {
+  //       height: 274,
+  //       url:
+  //         'https://t.scdn.co/media/derived/r-b-274x274_fd56efa72f4f63764b011b68121581d8_0_0_274_274.jpg',
+  //       width: 274
+  //     }
+  //   ],
+  //   id: 'mix',
+  //   name: 'Mix'
+  // }
 ];
 
 const styles = theme => ({
@@ -110,14 +109,12 @@ class CategoryPicker extends React.Component {
         <GridList
           className={classes.gridList}
           cellHeight={274}
-          cols={this.state.window.innerWidth > 800 ? 3 : 1}
-        >
+          cols={this.state.window.innerWidth > 800 ? 3 : 1}>
           {categories.map(category => (
             <GridListTile
               className={classes.gridItem}
               key={category.id}
-              onClick={_ => Router.push(`/play?category=${category.id}`)}
-            >
+              onClick={_ => Router.push(`/play?category=${category.id}`)}>
               <img src={category.icons[0].url} alt={category.name} />
               <GridListTileBar title={category.name} />
             </GridListTile>

@@ -11,6 +11,7 @@ import CurrentScore from '../components/CurrentScore';
 import SongList from '../components/SongList';
 import UserList from '../components/UserList';
 import AskUsername from '../components/AskUsername';
+import GameOverDialog from '../components/GameOverDialog';
 import match from '../src/match';
 
 const styles = theme => ({
@@ -39,6 +40,17 @@ class Room extends Component {
     guessedTrack: false,
     toast: {}
   };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    const lastTrack = prevProps.currentTrack;
+    const { currentTrack } = this.props;
+    if (lastTrack && currentTrack.id !== lastTrack.id) {
+      console.log('Resetting state.');
+      this.resetState();
+    }
+  };
+
+  resetState = _ => this.setState({ guess: '', guessedArtist: false, guessedTrack: false });
 
   handleChange = name => event => {
     this.setState({
@@ -125,11 +137,15 @@ class Room extends Component {
       timeLeft,
       countdown,
       currentUser,
-      users
+      users,
+      gameOver
     } = this.props;
+
+    const currentUserScore = currentUser ? users.find(x => x.name === currentUser.name).score : 0;
     return (
       <React.Fragment>
         <AskUsername open={!currentUser} onSubmit={addUser} />
+        <GameOverDialog open={gameOver} users={users} />
         <Snackbar
           open={Boolean(toast.status)}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -142,7 +158,7 @@ class Room extends Component {
           <CurrentScore
             title="Info del juego"
             playedTracks={playedTracks.length}
-            score={currentUser ? currentUser.score : 0}
+            score={currentUserScore}
           />
           <UserList className={classes.userList} title="Usuarios jugando" users={users} />
         </Grid>

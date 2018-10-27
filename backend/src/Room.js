@@ -1,5 +1,13 @@
 const s = require('../lib/spotify');
-const playlists = require('../config');
+const config = require('../config');
+const getShuffledArray = arr => {
+  let newArr = [...arr];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const rand = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[rand]] = [newArr[rand], newArr[i]];
+  }
+  return newArr;
+};
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
 const alreadyPlayedArtist = (songs, song) => {
   try {
@@ -37,32 +45,40 @@ class Room {
     // Set up the event listeners
     this.addEventListeners();
 
-    // Get the tracks for the room
-    this.tracks = await this.getTracks();
-    console.log(this.tracks);
-    if (this.tracks.length <= 15) {
-      const moreTracks = await this.getTracks();
-      this.tracks = [...this.tracks, moreTracks];
-    }
+    await this.getTracks();
 
     // Start the game
     this.loadTrack();
   }
 
-  loadTrack() {
-    // TODO: check if the game should be over.
+  restartGame() {
+    this.currentTrack = null;
+    this.playedTracks = [];
+    this.getTracks();
+    setTimeout(_ => this.loadTrack(), 10000);
+  }
 
-    console.log('Loading track...');
-    this.setNextTrack();
+  loadTrack() {
+    this.playedTracks = this.currentTrack ? [...this.playedTracks, this.currentTrack] : [];
     this.isPlaying = false;
+
+    // Check if the game is over.
+    if (this.playedTracks.length === 9) {
+      this.room.emit('game over', this.getRoomInfo());
+      this.restartGame();
+      return;
+    }
+
+    this.setNextTrack();
     this.room.emit('load track', this.getRoomInfo());
+    console.log('Loading track...');
 
     // We wait 5s and start playing the track
     setTimeout(_ => this.playTrack(), 6000);
   }
 
   playTrack() {
-    console.log(`Play track ${this.currentTrack.name}`);
+    console.log(`Play track ${this.currentTrack.name} - ${this.currentTrack.artists[0].name}`);
     this.isPlaying = true;
     this.timeLeft = SONG_TIME;
     this.startTimer();
@@ -83,41 +99,31 @@ class Room {
   }
 
   setNextTrack() {
-    const newTrack = getRandomItem(this.tracks);
-
-    if (!newTrack) {
-      console.log({ tracks: this.tracks });
-    }
+    const newTrack = this.tracks[0];
+    this.tracks = this.tracks.filter(x => x.id !== newTrack.id);
 
     if (alreadyPlayedArtist(this.playedTracks, newTrack)) {
       this.setNextTrack();
       return;
     }
 
-    this.tracks = this.tracks.filter(x => x.id !== newTrack.id);
-    this.playedTracks = this.currentTrack
-      ? [...this.playedTracks, this.currentTrack]
-      : [];
     this.currentTrack = newTrack;
   }
 
   async getTracks() {
-    const randomPlaylistId = getRandomItem(playlists[this.name]);
-    const offset = Math.floor(Math.random() * 1000);
-    const tracksResponse = await s.getPlaylistTracks(randomPlaylistId, {
-      offset
+    const randomArtists = getShuffledArray(config.artists[this.name]).slice(0, 2); // getRandomItem(config.artists[this.name]);
+    const response = await s.getRecommendations({
+      min_popularity: 50,
+      seed_artists: randomArtists,
+      limit: 100
     });
-    const tracks = tracksResponse.body.items.filter(x => x.track);
-    // We didn't get any tracks, try again.
-    if (tracks.length === 0) {
-      return await this.getTracks();
-    }
-
+    const { tracks } = response.body;
     const playableTracks = tracks
-      .filter(x => x.track.preview_url)
-      .map(x => x.track);
+      .filter(x => x.preview_url)
+      .sort((a, b) => b.popularity - a.popularity);
 
-    return playableTracks;
+    console.log(`For ${this.name} we have ${playableTracks.length} tracks.`);
+    this.tracks = playableTracks;
   }
 
   getRoomInfo() {
@@ -132,6 +138,8 @@ class Room {
 
   onAddUser(socket) {
     socket.on('add user', username => {
+      // TODO: Check that the username is not in use.
+
       console.log('add user called', username);
       socket.username = username;
       const newUser = { name: username, score: 0 };
@@ -147,7 +155,6 @@ class Room {
 
   onCorrectGuess(socket) {
     socket.on('correct guess', (username, guessType) => {
-      console.log({ username, guessType });
       // Update user's score.
       let user = this.users.find(x => x.name === username);
       const scoreToAdd = guessType === 'name' ? 2 : 1;
@@ -170,9 +177,7 @@ class Room {
   addEventListeners() {
     this.room.on('connection', socket => {
       console.log(
-        `Connected to room ${this.name}. SocketID: ${socket.id}. Namespace: ${
-          socket.nsp.name
-        }`
+        `Connected to room ${this.name}. SocketID: ${socket.id}. Namespace: ${socket.nsp.name}`
       );
       this.onAddUser(socket);
       this.onCorrectGuess(socket);

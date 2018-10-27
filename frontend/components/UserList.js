@@ -5,16 +5,20 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import PersonIcon from '@material-ui/icons/Person';
+import Typography from '@material-ui/core/Typography';
 
 const UserList = ({ users = [], title, ...rest }) => (
   <Paper {...rest}>
     <List subheader={<ListSubheader>{title}</ListSubheader>}>
-      {users.map((x, i) => (
+      {users.sort((a, b) => a.score < b.score).map((x, i) => (
         <ListItem key={i} dense>
           <ListItemIcon>
             <PersonIcon />
           </ListItemIcon>
           <ListItemText primary={x.name} />
+          <Typography variant="body1" color="textSecondary">
+            {x.score}
+          </Typography>
         </ListItem>
       ))}
     </List>

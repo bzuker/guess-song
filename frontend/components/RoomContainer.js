@@ -11,7 +11,8 @@ class RoomContainer extends Component {
     currentTrack: null,
     isPlaying: false,
     timeLeft: 15000,
-    countdown: 5
+    countdown: 5,
+    gameOver: false
   };
 
   componentDidMount = () => {
@@ -24,6 +25,7 @@ class RoomContainer extends Component {
     this.socket.on('update score', this.updateUsers);
     this.socket.on('user joined', this.updateUsers);
     this.socket.on('user left', this.updateUsers);
+    this.socket.on('game over', this.onGameOver);
   };
 
   componentWillUnmount = _ => {
@@ -49,7 +51,7 @@ class RoomContainer extends Component {
   onLoadTrack = roomInfo => {
     // We start the countdown
     console.log('load track', { ...roomInfo });
-    this.setState({ ...roomInfo, countdown: 5 });
+    this.setState({ ...roomInfo, countdown: 5, gameOver: false });
     this.startCountdown();
   };
 
@@ -61,6 +63,11 @@ class RoomContainer extends Component {
 
   onCorrectGuess = (username, guessType) => {
     this.socket.emit('correct guess', username, guessType);
+  };
+
+  onGameOver = roomInfo => {
+    this.setState({ ...roomInfo });
+    this.setState({ gameOver: true });
   };
 
   songCountdown = _ => {
@@ -95,7 +102,8 @@ class RoomContainer extends Component {
       currentTrack,
       isPlaying,
       timeLeft,
-      countdown
+      countdown,
+      gameOver
     } = this.state;
     return (
       <Room
@@ -109,6 +117,7 @@ class RoomContainer extends Component {
         isPlaying={isPlaying}
         timeLeft={timeLeft}
         countdown={countdown}
+        gameOver={gameOver}
       />
     );
   }
