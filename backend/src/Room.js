@@ -29,6 +29,7 @@ class Room {
     this.playedTracks = [];
     this.currentTrack = null;
     this.isPlaying = false;
+    this.songTime = SONG_TIME;
     this.timeLeft = SONG_TIME;
     this.users = [];
 

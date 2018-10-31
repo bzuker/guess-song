@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 
 const CurrentScore = ({ title, score, playedTracks }) => (
   <Paper>
-    <List subheader={<ListSubheader>{title}</ListSubheader>}>
+    <List dense subheader={<ListSubheader>{title}</ListSubheader>}>
       <ListItem>
         <ListItemText primary="Canción" />
         <Typography variant="body1" color="textSecondary">

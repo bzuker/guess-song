@@ -20,18 +20,21 @@ class RoomContainer extends Component {
     const { category } = this.props.router.query;
     this.socket = io(`http://localhost:80/${category}`);
     this.socket.on('login', this.onLogin);
-    this.socket.on('load track', this.onLoadTrack);
-    this.socket.on('play track', this.onPlayTrack);
-    this.socket.on('update score', this.updateUsers);
-    this.socket.on('user joined', this.updateUsers);
-    this.socket.on('user left', this.updateUsers);
-    this.socket.on('game over', this.onGameOver);
   };
 
   componentWillUnmount = _ => {
     clearInterval(this.songInterval);
     clearInterval(this.countdownId);
   };
+
+  addEventListeners() {
+    this.socket.on('load track', this.onLoadTrack);
+    this.socket.on('play track', this.onPlayTrack);
+    this.socket.on('update score', this.updateUsers);
+    this.socket.on('user joined', this.updateUsers);
+    this.socket.on('user left', this.updateUsers);
+    this.socket.on('game over', this.onGameOver);
+  }
 
   addUser = username => {
     this.socket.emit('add user', username);
@@ -42,6 +45,7 @@ class RoomContainer extends Component {
   onLogin = (user, roomInfo) => {
     console.log('login successful', { user });
     this.setState({ currentUser: user, ...roomInfo });
+    this.addEventListeners();
 
     if (roomInfo.isPlaying) {
       this.songCountdown();
