@@ -5,23 +5,21 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
 
-const SongList = ({ songs = [], title }) =>
-  songs.length > 0 ? (
-    <Paper>
-      <List dense subheader={<ListSubheader>{title}</ListSubheader>}>
-        {songs.map(s => (
-          <ListItem
-            key={s.id}
-            onClick={() => window.open(s.external_urls.spotify, '_blank')}
-            button
-            dense
-          >
-            <Avatar src={s.album.images[0].url} />
-            <ListItemText primary={s.name} secondary={s.artists.map(a => a.name).join(', ')} />
-          </ListItem>
-        ))}
-      </List>
-    </Paper>
-  ) : null;
+const SongList = ({ songs = [], title }) => (
+  <Paper>
+    <List dense subheader={<ListSubheader>{title}</ListSubheader>}>
+      {songs.map(s => (
+        <ListItem
+          key={s.id}
+          onClick={() => window.open(s.external_urls.spotify, '_blank')}
+          button
+          dense>
+          <Avatar src={s.album.images[0].url} />
+          <ListItemText primary={s.name} secondary={s.artists.map(a => a.name).join(', ')} />
+        </ListItem>
+      ))}
+    </List>
+  </Paper>
+);
 
 export default SongList;

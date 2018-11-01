@@ -12,17 +12,19 @@ const Transition = props => <Slide direction="up" {...props} />;
 
 class AskUsername extends Component {
   state = {
-    username: ''
+    username: '',
+    disabled: false
   };
 
   handleSubmit = evt => {
     evt.preventDefault();
     // TODO: validate some more stuff.
-    const { username } = this.state;
-    if (!username) {
+    const { username, disabled } = this.state;
+    if (!username || disabled) {
       return;
     }
 
+    this.setState({ disabled: true });
     this.props.onSubmit(username);
   };
 
@@ -58,7 +60,7 @@ class AskUsername extends Component {
           </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={this.handleSubmit} color="primary">
+          <Button disabled={this.state.disabled} onClick={this.handleSubmit} color="primary">
             Jugar!
           </Button>
         </DialogActions>

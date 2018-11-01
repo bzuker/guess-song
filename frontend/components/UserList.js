@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 const UserList = ({ users = [], title, ...rest }) => (
   <Paper {...rest}>
     <List dense subheader={<ListSubheader>{title}</ListSubheader>}>
-      {users.sort((a, b) => a.score < b.score).map((x, i) => (
+      {users.sort((a, b) => b.score - a.score).map((x, i) => (
         <ListItem key={i} dense>
           <ListItemIcon>
             <PersonIcon />

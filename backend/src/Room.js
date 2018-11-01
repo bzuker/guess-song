@@ -112,16 +112,15 @@ class Room {
   }
 
   async getTracks() {
-    const randomArtists = getShuffledArray(config.artists[this.name]).slice(0, 2); // getRandomItem(config.artists[this.name]);
+    const randomArtists = getShuffledArray(config.artists[this.name]).slice(0, 3); // getRandomItem(config.artists[this.name]);
     const response = await s.getRecommendations({
       min_popularity: 50,
       seed_artists: randomArtists,
       limit: 100
     });
     const { tracks } = response.body;
-    const playableTracks = tracks
-      .filter(x => x.preview_url)
-      .sort((a, b) => b.popularity - a.popularity);
+    const playableTracks = tracks.filter(x => x.preview_url);
+    //.sort((a, b) => b.popularity - a.popularity);
 
     console.log(`For ${this.name} we have ${playableTracks.length} tracks.`);
     this.tracks = playableTracks;
