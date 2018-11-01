@@ -59,12 +59,9 @@ class Player extends Component {
   play() {
     if (this.state.isMobile && !this.state.hasPlayed) return;
     this.audioEl.play();
-    // if (!this.audioEl.current || (this.state.isMobile && !this.state.hasPlayed)) return;
-    // this.audioEl.current.play();
   }
 
   stop() {
-    // if (!this.audioEl.current) return;
     this.audioEl.pause();
     this.audioEl.currentTime = 0;
   }

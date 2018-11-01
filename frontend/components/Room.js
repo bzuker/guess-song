@@ -6,6 +6,7 @@ import Player from '../components/Player';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Snackbar from '@material-ui/core/Snackbar';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import green from '@material-ui/core/colors/green';
 import CurrentScore from '../components/CurrentScore';
 import SongList from '../components/SongList';
@@ -15,6 +16,21 @@ import GameOverDialog from '../components/GameOverDialog';
 import match from '../src/match';
 
 const styles = theme => ({
+  scoreContainer: {
+    [theme.breakpoints.down('sm')]: {
+      order: 2
+    }
+  },
+  playerContainer: {
+    [theme.breakpoints.down('sm')]: {
+      order: 1
+    }
+  },
+  songsContainer: {
+    [theme.breakpoints.down('sm')]: {
+      order: 3
+    }
+  },
   form: {
     marginTop: '20px',
     padding: '15px'
@@ -30,6 +46,9 @@ const styles = theme => ({
   },
   info: {
     backgroundColor: theme.palette.secondary.dark
+  },
+  bold: {
+    fontWeight: '500'
   }
 });
 
@@ -154,7 +173,7 @@ class Room extends Component {
           onClose={_ => this.setState({ toast: {} })}
           autoHideDuration={2000}
         />
-        <Grid item xs={12} sm={12} md={3} lg={2}>
+        <Grid className={classes.scoreContainer} item xs={12} sm={12} md={3} lg={2}>
           <CurrentScore
             title="Info del juego"
             playedTracks={playedTracks.length}
@@ -162,21 +181,24 @@ class Room extends Component {
           />
           <UserList className={classes.userList} title="Usuarios jugando" users={users} />
         </Grid>
-        <Grid item xs={12} sm={7} md={5} lg={7}>
+        <Grid className={classes.playerContainer} item xs={12} sm={7} md={5} lg={7}>
           <Player
             track={currentTrack}
             isPlaying={isPlaying}
             timeLeft={timeLeft}
             countdown={countdown}
           />
+          {isPlaying ? (
+            <LinearProgress value={(timeLeft * 100) / 15000} variant="determinate" />
+          ) : null}
           <Paper className={classes.form}>
-            <Typography variant="h6" component="h5">
-              Adiviná la canción o quién canta!
+            <Typography className={classes.bold} variant="body1" align="center">
+              Adiviná el nombre del tema o quién canta
             </Typography>
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
               <TextField
                 id="guess"
-                label="Adiviná el nombre de la canción o del artista"
+                label="Canción o artista"
                 className={classes.textField}
                 value={this.state.guess}
                 onChange={this.handleChange('guess')}
@@ -186,7 +208,7 @@ class Room extends Component {
             </form>
           </Paper>
         </Grid>
-        <Grid item xs={12} sm={5} md={4} lg={3}>
+        <Grid className={classes.songsContainer} item xs={12} sm={5} md={4} lg={3}>
           <SongList title="Canciones escuchadas" songs={playedTracks} />
         </Grid>
       </React.Fragment>

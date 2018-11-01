@@ -8,7 +8,7 @@ import Avatar from '@material-ui/core/Avatar';
 const SongList = ({ songs = [], title }) =>
   songs.length > 0 ? (
     <Paper>
-      <List subheader={<ListSubheader>{title}</ListSubheader>}>
+      <List dense subheader={<ListSubheader>{title}</ListSubheader>}>
         {songs.map(s => (
           <ListItem
             key={s.id}
