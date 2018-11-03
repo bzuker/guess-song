@@ -34,7 +34,7 @@ const styles = theme => ({
     }
   },
   form: {
-    marginTop: '20px',
+    marginBottom: '20px',
     padding: '15px'
   },
   shake: {
@@ -203,17 +203,8 @@ class Room extends Component {
           <UserList className={classes.userList} title="Usuarios jugando" users={users} />
         </Grid>
         <Grid className={classes.playerContainer} item xs={12} sm={7} md={5} lg={7}>
-          <Player
-            track={currentTrack}
-            isPlaying={isPlaying}
-            timeLeft={timeLeft}
-            countdown={countdown}
-          />
-          {isPlaying ? (
-            <LinearProgress value={(timeLeft * 100) / 15000} variant="determinate" />
-          ) : null}
           <Paper className={classes.form}>
-            <Typography className={classNames(classes.bold, classes[feedback.status])} variant="body1" align="center">
+            <Typography className={classNames(classes.bold, classes[feedback.status])} variant="body1" align="center" gutterBottom>
               {feedback.text}
             </Typography>
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
@@ -229,6 +220,12 @@ class Room extends Component {
               />
             </form>
           </Paper>
+          <Player
+            track={currentTrack}
+            isPlaying={isPlaying}
+            timeLeft={timeLeft}
+            countdown={countdown}
+          />
         </Grid>
         <Grid className={classes.songsContainer} item xs={12} sm={5} md={4} lg={3}>
           <SongList title="Canciones escuchadas" songs={playedTracks} />

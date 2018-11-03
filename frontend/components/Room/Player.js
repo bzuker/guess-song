@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import AudioSpectrum from 'react-audio-spectrum';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -28,7 +27,6 @@ class Player extends Component {
     isMobile: false,
     hasPlayed: false
   };
-  // audioEl = React.createRef();
 
   componentDidMount = () => {
     this.audioEl = new Audio();
