@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { withRouter } from 'next/router';
 import io from 'socket.io-client';
 import Room from './Room';
-import config from '../config';
+import config from '../../config';
 
 class RoomContainer extends Component {
   state = {
@@ -44,7 +44,7 @@ class RoomContainer extends Component {
   updateUsers = users => this.setState({ users });
 
   onLogin = (user, roomInfo) => {
-    console.log('login successful', { user });
+    console.log('login successful', { user, roomInfo });
     this.setState({ currentUser: user, ...roomInfo });
     this.addEventListeners();
 

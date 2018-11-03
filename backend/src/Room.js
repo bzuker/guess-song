@@ -72,14 +72,14 @@ class Room {
 
     this.setNextTrack();
     this.room.emit('load track', this.getRoomInfo());
-    console.log('Loading track...');
+    console.log(`${new Date().toISOString()} > Loading track...`);
 
     // We wait 5s and start playing the track
     setTimeout(_ => this.playTrack(), 6000);
   }
 
   playTrack() {
-    console.log(`Play track ${this.currentTrack.name} - ${this.currentTrack.artists[0].name}`);
+    console.log(`${new Date().toISOString()} > Play track ${this.currentTrack.name} - ${this.currentTrack.artists[0].name}`);
     this.isPlaying = true;
     this.timeLeft = SONG_TIME;
     this.startTimer();

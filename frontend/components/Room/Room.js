@@ -2,19 +2,21 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import Player from '../components/Player';
+import Player from './Player';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
-import Snackbar from '@material-ui/core/Snackbar';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import green from '@material-ui/core/colors/green';
-import CurrentScore from '../components/CurrentScore';
-import SongList from '../components/SongList';
-import UserList from '../components/UserList';
-import AskUsername from '../components/AskUsername';
-import GameOverDialog from '../components/GameOverDialog';
-import match from '../src/match';
+import classNames from 'classnames'
+import CurrentScore from './CurrentScore';
+import SongList from './SongList';
+import UserList from './UserList';
+import AskUsername from './AskUsername';
+import GameOverDialog from './GameOverDialog';
+import match from '../../src/match';
+import feedback from './feedback'
 
+const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
 const styles = theme => ({
   scoreContainer: {
     [theme.breakpoints.down('sm')]: {
@@ -35,17 +37,35 @@ const styles = theme => ({
     marginTop: '20px',
     padding: '15px'
   },
+  shake: {
+      animation: 'shake 0.7s cubic-bezier(.36,.07,.19,.97) both',
+      transform: 'translate3d(0, 0, 0)'
+  },
+  '@keyframes shake': {
+    '10%, 90%': {
+      transform: 'translate3d(-1px, 0, 0)'
+    },
+    '20%, 80%': {
+      transform: 'translate3d(2px, 0, 0)'
+    },
+    '30%, 50%, 70%': {
+      transform: 'translate3d(-4px, 0, 0)'
+    },
+    '40%, 60%': {
+      transform: 'translate3d(4px, 0, 0)'
+    }
+  },
   userList: {
     marginTop: '15px'
   },
   success: {
-    backgroundColor: green[600]
+    color: green[700]
   },
   error: {
-    backgroundColor: theme.palette.error.dark
+    color: theme.palette.error.dark
   },
   info: {
-    backgroundColor: theme.palette.secondary.dark
+    color: 'inherit'
   },
   bold: {
     fontWeight: '500'
@@ -53,12 +73,17 @@ const styles = theme => ({
 });
 
 class Room extends Component {
-  state = {
+  static INITIAL_STATE = {
     guess: '',
     guessedArtist: false,
     guessedTrack: false,
-    toast: {}
-  };
+    feedback: {
+      text: 'Adiviná el nombre del tema o quién canta',
+      status: 'info'
+    }
+  }
+
+  state = Room.INITIAL_STATE
 
   componentDidUpdate = (prevProps, prevState) => {
     const lastTrack = prevProps.currentTrack;
@@ -69,7 +94,7 @@ class Room extends Component {
     }
   };
 
-  resetState = _ => this.setState({ guess: '', guessedArtist: false, guessedTrack: false });
+  resetState = _ => this.setState(Room.INITIAL_STATE);
 
   handleChange = name => event => {
     this.setState({
@@ -87,7 +112,7 @@ class Room extends Component {
     // Can't guess if there is no song
     if (!isPlaying) {
       this.setState({
-        toast: { text: 'Esperá que empiece la canción!', status: 'info' },
+        feedback: { text: 'Esperá que empiece la canción!', status: 'info' },
         guess: ''
       });
       return;
@@ -96,7 +121,7 @@ class Room extends Component {
     // Already guessed.
     if (guessedTrack && guessedArtist) {
       this.setState({
-        toast: {
+        feedback: {
           text: 'Ya adivinaste! Esperá la próxima canción',
           status: 'info'
         },
@@ -110,8 +135,8 @@ class Room extends Component {
       this.props.onCorrectGuess(currentUser.name, 'name');
       this.setState(state => ({
         ...state,
-        toast: {
-          text: guessedArtist ? '+2. Excelente!' : '+2. Bien! Y quién canta?',
+        feedback: {
+          text: guessedArtist ? getRandomItem(feedback.positiveBoth) : getRandomItem(feedback.positiveSong),
           status: 'success'
         },
         guess: '',
@@ -126,8 +151,8 @@ class Room extends Component {
       this.props.onCorrectGuess(currentUser.name, 'artist');
       this.setState(state => ({
         ...state,
-        toast: {
-          text: guessedTrack ? '+1. Excelente!' : '+1. Bien! Y qué canción es?',
+        feedback: {
+          text: guessedTrack ? getRandomItem(feedback.positiveBoth) : getRandomItem(feedback.positiveArtist),
           status: 'success'
         },
         guess: '',
@@ -140,13 +165,17 @@ class Room extends Component {
     // Matches nothing
     this.setState(state => ({
       ...state,
-      toast: { text: 'No.. probá de nuevo.', status: 'error' },
+      feedback: { text: getRandomItem(feedback.negative), status: 'error' },
       guess: ''
     }));
+
+    setTimeout(() => {
+      this.setState(state => ({...state, feedback: {text: state.feedback.text, status: ''}}))
+    }, 1500);
   };
 
   render() {
-    const { toast } = this.state;
+    const { feedback } = this.state;
     const {
       classes,
       addUser,
@@ -165,14 +194,6 @@ class Room extends Component {
       <React.Fragment>
         <AskUsername open={!currentUser} onSubmit={addUser} />
         <GameOverDialog open={gameOver} users={users} />
-        <Snackbar
-          open={Boolean(toast.status)}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-          ContentProps={{ className: classes[toast.status] }}
-          message={toast.text}
-          onClose={_ => this.setState({ toast: {} })}
-          autoHideDuration={2000}
-        />
         <Grid className={classes.scoreContainer} item xs={12} sm={12} md={3} lg={2}>
           <CurrentScore
             title="Info del juego"
@@ -192,18 +213,19 @@ class Room extends Component {
             <LinearProgress value={(timeLeft * 100) / 15000} variant="determinate" />
           ) : null}
           <Paper className={classes.form}>
-            <Typography className={classes.bold} variant="body1" align="center">
-              Adiviná el nombre del tema o quién canta
+            <Typography className={classNames(classes.bold, classes[feedback.status])} variant="body1" align="center">
+              {feedback.text}
             </Typography>
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
               <TextField
                 id="guess"
                 label="Canción o artista"
-                className={classes.textField}
+                className={feedback.status === 'error' ? classes.shake : null}
                 value={this.state.guess}
                 onChange={this.handleChange('guess')}
                 fullWidth
                 autoFocus
+                error={feedback.status === 'error'}
               />
             </form>
           </Paper>

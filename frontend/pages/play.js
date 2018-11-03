@@ -1,4 +1,4 @@
-import RoomContainer from '../components/RoomContainer';
+import RoomContainer from '../components/Room/RoomContainer';
 
 const Play = props => <RoomContainer />;
 

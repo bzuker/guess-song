@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Slide from '@material-ui/core/Slide';
 
-const Transition = props => <Slide direction="up" {...props} />;
+const Transition = props => <Slide direction="up" style={{ alignItems: 'flex-start' }} {...props} />;
 
 class AskUsername extends Component {
   state = {
@@ -37,11 +37,7 @@ class AskUsername extends Component {
   render() {
     const { open } = this.props;
     return (
-      <Dialog
-        open={open}
-        TransitionComponent={Transition}
-        aria-labelledby="form-dialog-title"
-        style={{ alignItems: 'flex-start' }}>
+      <Dialog open={open} TransitionComponent={Transition} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Elegí un nombre de usuario</DialogTitle>
         <DialogContent>
           <DialogContentText>
