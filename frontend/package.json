@@ -22,7 +22,6 @@
     "next": "latest",
     "prop-types": "latest",
     "react": "latest",
-    "react-audio-spectrum": "0.0.9",
     "react-dom": "latest",
     "react-jss": "latest",
     "socket.io-client": "^2.1.1"

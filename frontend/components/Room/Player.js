@@ -3,8 +3,9 @@ import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import Avatar from '@material-ui/core/Avatar';
-import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 import PlayIcon from '@material-ui/icons/PlayArrow';
+import AudioSpectrum from './AudioSpectrum'
 
 const styles = theme => ({
   paper: {
@@ -30,6 +31,7 @@ class Player extends Component {
 
   componentDidMount = () => {
     this.audioEl = new Audio();
+    this.audioEl.crossOrigin = 'anonymous';
     if (window.innerWidth < 800) {
       this.setState({ isMobile: true });
     }
@@ -74,27 +76,17 @@ class Player extends Component {
         <Paper className={classes.paper}>
           {track ? (
             <React.Fragment>
-              {this.state.isMobile ? (
-                <IconButton
-                  className={classes.playBtn}
-                  aria-label="Play"
-                  onClick={_ => this.mobilePlay()}>
+              {this.state.isMobile && !this.state.hasPlayed && isPlaying ? (
+                <Button variant="contained" size="small" className={classes.playBtn} onClick={_ => this.mobilePlay()}>
                   <PlayIcon />
-                </IconButton>
+                Jugar
+              </Button>
               ) : null}
-              {/* <audio
-                id="track"
-                crossOrigin="anonymous"
-                src={track.preview_url}
-                //ref={this.audioEl}
-              >
-                Your browser does not support the <code>audio</code> element.
-              </audio> */}
-              {/* <AudioSpectrum
+              <AudioSpectrum
                 id="audio-canvas"
                 height={100}
                 width={window.innerWidth > 1300 ? 500 : 300}
-                audioId={'track'}
+                audio={this.audioEl}
                 capColor={'red'}
                 capHeight={2}
                 meterWidth={2}
@@ -105,7 +97,7 @@ class Player extends Component {
                   { stop: 1, color: 'red' }
                 ]}
                 gap={4}
-              /> */}
+              />
             </React.Fragment>
           ) : null}
           {!isPlaying ? <Avatar className={classes.avatar}>{Math.round(countdown)}</Avatar> : null}
