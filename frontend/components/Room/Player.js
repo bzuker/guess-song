@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import PlayIcon from '@material-ui/icons/PlayArrow';
-import AudioSpectrum from './AudioSpectrum';
 
 const styles = theme => ({
   playBtn: {
