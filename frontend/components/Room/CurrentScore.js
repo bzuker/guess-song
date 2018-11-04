@@ -6,7 +6,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 
 const CurrentScore = ({ title, score, playedTracks }) => (
-  <Paper>
+  <Paper style={{ width: '100%' }}>
     <List dense subheader={<ListSubheader>{title}</ListSubheader>}>
       <ListItem>
         <ListItemText primary="Canción" />

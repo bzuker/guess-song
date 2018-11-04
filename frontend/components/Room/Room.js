@@ -6,15 +6,16 @@ import Player from './Player';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import Badge from '@material-ui/core/Badge';
 import green from '@material-ui/core/colors/green';
-import classNames from 'classnames'
+import classNames from 'classnames';
 import CurrentScore from './CurrentScore';
 import SongList from './SongList';
 import UserList from './UserList';
 import AskUsername from './AskUsername';
 import GameOverDialog from './GameOverDialog';
 import match from '../../src/match';
-import feedback from './feedback'
+import feedback from './feedback';
 
 const getRandomItem = array => array[Math.floor(Math.random() * array.length)];
 const styles = theme => ({
@@ -34,12 +35,11 @@ const styles = theme => ({
     }
   },
   form: {
-    marginBottom: '20px',
     padding: '15px'
   },
   shake: {
-      animation: 'shake 0.7s cubic-bezier(.36,.07,.19,.97) both',
-      transform: 'translate3d(0, 0, 0)'
+    animation: 'shake 0.7s cubic-bezier(.36,.07,.19,.97) both',
+    transform: 'translate3d(0, 0, 0)'
   },
   '@keyframes shake': {
     '10%, 90%': {
@@ -69,6 +69,9 @@ const styles = theme => ({
   },
   bold: {
     fontWeight: '500'
+  },
+  width: {
+    width: '100%'
   }
 });
 
@@ -78,12 +81,12 @@ class Room extends Component {
     guessedArtist: false,
     guessedTrack: false,
     feedback: {
-      text: 'Adiviná el nombre del tema o quién canta',
+      text: 'Adiviná la canción o quién la canta',
       status: 'info'
     }
-  }
+  };
 
-  state = Room.INITIAL_STATE
+  state = Room.INITIAL_STATE;
 
   componentDidUpdate = (prevProps, prevState) => {
     const lastTrack = prevProps.currentTrack;
@@ -136,7 +139,9 @@ class Room extends Component {
       this.setState(state => ({
         ...state,
         feedback: {
-          text: guessedArtist ? getRandomItem(feedback.positiveBoth) : getRandomItem(feedback.positiveSong),
+          text: guessedArtist
+            ? getRandomItem(feedback.positiveBoth)
+            : getRandomItem(feedback.positiveSong),
           status: 'success'
         },
         guess: '',
@@ -147,12 +152,17 @@ class Room extends Component {
     }
 
     // If it matches one of the artists (and hasn't guessed yet).
-    if (!guessedArtist && currentTrack.artists.some(x => match(x.name, guess))) {
+    if (
+      !guessedArtist &&
+      currentTrack.artists.some(x => match(x.name, guess))
+    ) {
       this.props.onCorrectGuess(currentUser.name, 'artist');
       this.setState(state => ({
         ...state,
         feedback: {
-          text: guessedTrack ? getRandomItem(feedback.positiveBoth) : getRandomItem(feedback.positiveArtist),
+          text: guessedTrack
+            ? getRandomItem(feedback.positiveBoth)
+            : getRandomItem(feedback.positiveArtist),
           status: 'success'
         },
         guess: '',
@@ -170,7 +180,10 @@ class Room extends Component {
     }));
 
     setTimeout(() => {
-      this.setState(state => ({...state, feedback: {text: state.feedback.text, status: ''}}))
+      this.setState(state => ({
+        ...state,
+        feedback: { text: state.feedback.text, status: '' }
+      }));
     }, 1500);
   };
 
@@ -189,22 +202,60 @@ class Room extends Component {
       gameOver
     } = this.props;
 
-    const currentUserScore = currentUser ? users.find(x => x.name === currentUser.name).score : 0;
+    const user = currentUser
+      ? users.find(x => x.name === currentUser.name)
+      : null;
+    const currentUserScore = user ? user.score : 0;
     return (
       <React.Fragment>
         <AskUsername open={!currentUser} onSubmit={addUser} />
         <GameOverDialog open={gameOver} users={users} />
-        <Grid className={classes.scoreContainer} item xs={12} sm={12} md={3} lg={2}>
-          <CurrentScore
-            title="Info del juego"
-            playedTracks={playedTracks.length}
-            score={currentUserScore}
+        <Grid
+          className={classes.scoreContainer}
+          item
+          xs={12}
+          sm={12}
+          md={3}
+          lg={2}
+        >
+          <Badge
+            className={classes.width}
+            badgeContent={isPlaying ? Math.ceil(timeLeft / 1000) : countdown}
+            color={isPlaying ? 'primary' : 'secondary'}
+          >
+            <CurrentScore
+              title="Info del juego"
+              playedTracks={playedTracks.length}
+              score={currentUserScore}
+            />
+          </Badge>
+          <UserList
+            className={classes.userList}
+            title="Usuarios jugando"
+            users={users}
           />
-          <UserList className={classes.userList} title="Usuarios jugando" users={users} />
         </Grid>
-        <Grid className={classes.playerContainer} item xs={12} sm={7} md={5} lg={7}>
+        <Grid
+          className={classes.playerContainer}
+          item
+          xs={12}
+          sm={7}
+          md={5}
+          lg={7}
+        >
+          {isPlaying ? (
+            <LinearProgress
+              value={(timeLeft * 100) / 15000}
+              variant="determinate"
+            />
+          ) : null}
           <Paper className={classes.form}>
-            <Typography className={classNames(classes.bold, classes[feedback.status])} variant="body1" align="center" gutterBottom>
+            <Typography
+              className={classNames(classes.bold, classes[feedback.status])}
+              variant="body1"
+              align="center"
+              gutterBottom
+            >
               {feedback.text}
             </Typography>
             <form noValidate autoComplete="off" onSubmit={this.handleSubmit}>
@@ -220,6 +271,7 @@ class Room extends Component {
               />
             </form>
           </Paper>
+
           <Player
             track={currentTrack}
             isPlaying={isPlaying}
@@ -227,7 +279,14 @@ class Room extends Component {
             countdown={countdown}
           />
         </Grid>
-        <Grid className={classes.songsContainer} item xs={12} sm={5} md={4} lg={3}>
+        <Grid
+          className={classes.songsContainer}
+          item
+          xs={12}
+          sm={5}
+          md={4}
+          lg={3}
+        >
           <SongList title="Canciones escuchadas" songs={playedTracks} />
         </Grid>
       </React.Fragment>

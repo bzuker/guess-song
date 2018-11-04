@@ -26,6 +26,7 @@ class RoomContainer extends Component {
   componentWillUnmount = _ => {
     clearInterval(this.songInterval);
     clearInterval(this.countdownId);
+    this.socket.disconnect();
   };
 
   addEventListeners() {
