@@ -55,6 +55,7 @@ class Room {
   restartGame() {
     this.currentTrack = null;
     this.playedTracks = [];
+    this.users.forEach(x => x.score = 0);
     this.getTracks();
     setTimeout(_ => this.loadTrack(), 10000);
   }
